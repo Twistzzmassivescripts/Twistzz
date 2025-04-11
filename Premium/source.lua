@@ -1,28 +1,21 @@
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 
--- Replace with the raw link to your JSON file
-local whitelistUrl = "https://raw.githubusercontent.com/Twistzzmassivescripts/Twistzz/main/Premium/Whitelist.json"
+local key = _G.script_key or getgenv().script_key
+local whitelist_url = "https://raw.githubusercontent.com/YOURNAME/YOURREPO/main/whitelist.json"
 
-local function isHWIDWhitelisted(hwid)
-	local success, result = pcall(function()
-		local response = HttpService:GetAsync(whitelistUrl)
-		local data = HttpService:JSONDecode(response)
-		return data
-	end)
+local success, result = pcall(function()
+    return HttpService:GetAsync(whitelist_url)
+end)
 
-	if success and result and result.whitelisted_hwids then
-		for _, whitelisted in ipairs(result.whitelisted_hwids) do
-			if whitelisted == hwid then
-				return true
-			end
-		end
-	end
-	return false
-end
-
--- Example usage (you'd replace this with actual HWID logic)
-local exampleHWID = "HWID_1"
-if isHWIDWhitelisted(exampleHWID) then
-	print("✅ HWID is whitelisted!")
+if success then
+    local data = HttpService:JSONDecode(result)
+    if table.find(data.whitelisted_keys, key) then
+        -- Load the real script
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/YOURNAME/YOURREPO/main/real_script.lua"))()
+    else
+        Players.LocalPlayer:Kick("❌ Invalid key.")
+    end
 else
-	print("❌ HWID
+    Players.LocalPlayer:Kick("❌ Could not validate license. Try again later.")
+end
